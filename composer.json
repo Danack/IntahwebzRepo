@@ -1,0 +1,24 @@
+{
+    "name": "intahwebz/repo",
+    "description": "Nope",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Dan Ackroyd",
+            "email": "Danack@basereality.com",
+            "homepage": "http://www.basereality.com"
+        }
+    ],
+    "repositories": [
+        {
+            "type": "vcs",
+            "url": "/documents/projects/github/composer"
+        }
+    ],
+    
+    "require": {
+        "composer/composer": "dev-GetRootComposerJson as 1.0.0",
+        "composer/satis": "dev-master"
+    },
+    "minimum-stability": "dev"
+}

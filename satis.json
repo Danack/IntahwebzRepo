@@ -1,0 +1,46 @@
+{
+    "name": "Intahwebz package repository",
+    "homepage": "http://packages.intahwebz.com",
+    "repositories": [
+        {
+            "packagist": false
+        },
+        { 
+            "type": "vcs", 
+            "url": "http://github.com/Danack/Auryn" 
+        },
+        {
+            "type": "vcs",
+            "url": "http://github.com/Danack/intahwebz-core"
+        },
+        {
+            "type": "vcs",
+            "url": "http://github.com/Danack/Configurator"
+        },
+        {
+            "type": "vcs",
+            "url": "http://github.com/Danack/Jig"
+        },
+        {
+            "type": "vcs",
+            "url": "http://github.com/Danack/mb_extra"
+        },
+        {
+            "type": "vcs",
+            "url": "http://github.com/Danack/intahwebz-utils"
+        },
+        {
+            "type": "vcs",
+            "url": "http://github.com/Danack/Jig"
+        },
+        {
+            "type": "artifact",
+            "url": "zips/"
+        },
+        {
+            "type": "vcs",
+            "url": "https://github.com/Danack/intahwebz"
+        }
+    ],
+    "require-all": true
+}
