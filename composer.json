@@ -18,7 +18,7 @@
     
     "require": {
         "composer/composer": "dev-GetRootComposerJson as 1.0.0",
-        "composer/satis": "dev-master"
+        "composer/satis": "dev-master#c7348ef2c84152eae4261236f371d0bc1a28ef7c"
     },
     "minimum-stability": "dev"
 }
