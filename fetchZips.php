@@ -16,6 +16,7 @@ $repos = array(
     "Danack/Jig",
     "Danack/Auryn",
     "php-fig/log",
+    "necolas/normalize.css",
     "Seldaek/monolog",
     "sebastianbergmann/phpunit",
     "sebastianbergmann/php-code-coverage",
@@ -53,10 +54,7 @@ $repos = array(
     "symfony/yaml",
 );
 
-
 $zipsDirectory = "zips/";
-
-
 
 foreach ($repos as $repo) {
     cacheRepo($repo, $zipsDirectory, $accessToken);
@@ -98,7 +96,6 @@ function cacheRepo($repo, $zipsDirectory, $accessToken = null) {
     foreach ($tagContentArray as $tagContent) {
 
         $tagName = $tagContent['name'];
-        
         $zendReleasePrefix = 'release-';
         
         if (strpos($tagName, $zendReleasePrefix) === 0) {
@@ -126,13 +123,13 @@ function cacheRepo($repo, $zipsDirectory, $accessToken = null) {
         }
 
         try {
-            modifyZipfile($filename, $tagName);
+            modifyZipfile($filename, $tagName, $repo);
         }
         catch(\Exception $e) {
-            
             throw new \Exception("Error processing $filename: ".$e->getMessage(), $e->getCode(), $e);
         }
 
+        //Hack to only do a few files at once.
         $count++;
         if ($count > 10) {
             return;
@@ -147,7 +144,7 @@ function cacheRepo($repo, $zipsDirectory, $accessToken = null) {
  * @param $filename
  */
 function downloadFile($url, $filename) {
-    
+
     echo "Downloading $url to  $filename \n";
     $fp = fopen($filename, 'w');
     $ch = curl_init($url);
@@ -167,14 +164,13 @@ function downloadFile($url, $filename) {
  * @param $tag
  * @throws Exception
  */
-function modifyZipfile($zipFilename, $tag) {
+function modifyZipfile($zipFilename, $tag, $repoName) {
 
     $fileToModify = 'composer.json';
 
     $zip = new ZipArchive;
 
     if ($zip->open($zipFilename) === TRUE) {
-
         $shortestIndex = -1;
         $shortestIndexLength = -1;
         $fileToReplace = null;
@@ -193,25 +189,28 @@ function modifyZipfile($zipFilename, $tag) {
         }
 
         if ($shortestIndex == -1) {
-            echo "Failed to find the composer.json file, delete $zipFilename \n";
-            
-            markFileToSkip($zipFilename);
-            
-            $zip->close();
-            return ;
+            //echo "Failed to find the composer.json file, delete $zipFilename \n";
+            //markFileToSkip($zipFilename);
+            //$zip->close();
+            //return ;
+            echo "Failed to find the composer.json file, creating it for $zipFilename \n";
+            $contents = generateComposerJSON($repoName, $tag);
+            $zip->addFromString("composer.json", $contents);
         }
-        
-        //echo "Found the file at $shortestIndex\n";
-        $contents = $zip->getFromIndex($shortestIndex);
-
-        $modifiedContents = modifyJson($contents, $tag);
-
-        if ($modifiedContents) {
-            echo "Adding version tag $tag to file $zipFilename.\n";
-            $zip->deleteName($fileToReplace);    //Delete the old...
-            $zip->addFromString($fileToReplace, $modifiedContents); //Write the new...
-        }
-        else{
+        else {
+            //echo "Found the file at $shortestIndex\n";
+            $contents = $zip->getFromIndex($shortestIndex);
+    
+            $modifiedContents = modifyJson($contents, $tag);
+    
+            if ($modifiedContents) {
+                echo "Adding version tag $tag to file $zipFilename.\n";
+                $zip->deleteName($fileToReplace);    //Delete the old...
+                $zip->addFromString($fileToReplace, $modifiedContents); //Write the new...
+            }
+            else{
+                //File already contained a composer.json with a version entry in it
+            }
         }
         
         $zip->close();//And write back to the filesystem.
@@ -230,7 +229,7 @@ function modifyZipfile($zipFilename, $tag) {
  * @return bool|string
  * @throws Exception
  */
-function modifyJson($contents, $version){
+function modifyJson($contents, $version) {
 
     $contentsInfo = json_decode($contents, true);
     
@@ -246,9 +245,33 @@ function modifyJson($contents, $version){
     return false;
 }
 
+
+/**
+ * Generate a very basic composer.json for a zipball.
+ * @param $repoName
+ * @param $tag
+ * @return string
+ */
+function generateComposerJSON($repoName, $tag) {
+
+    $contents = <<< END
+{
+ "name": "$repoName",
+ "version": "$tag"
+}
+
+END;
+
+    return $contents;
+}
+
 /**
  * If a zipball doesn't have a composer.json in it's root, it is unprocessiable and
  * always will be. Mark it to be skipped for all future runs, to avoid being re-downloaded.
+ * 
+ * This is now moot with the added functionality to add composer.json to a zipball that
+ * doesn't have one.
+ * 
  * @param $zipFilename
  */
 function markFileToSkip($zipFilename) {
@@ -256,6 +279,3 @@ function markFileToSkip($zipFilename) {
     file_put_contents("ignoreList.txt", $zipFilename."\n", FILE_APPEND);
 }
 
-
-
-?> 
