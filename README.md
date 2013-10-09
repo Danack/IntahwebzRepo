@@ -13,7 +13,7 @@ This is just an example implementation of how to actually use Satis in a way tha
 
 See [here](https://docs.google.com/presentation/d/1Et9xYeFo4RrpBnGycz5XM0rhlDk2c7MRBvv8mMEbPtc/edit?usp=sharing) for more details - the 'Running your own Packagist' slides.
 
-The list of packages it serves is effectively hard-coded for my project.
+This is a proof of concept, rather than production ready code. e.g. the list of packages it serves is effectively hard-coded for my project.
 
 
 Running the server
